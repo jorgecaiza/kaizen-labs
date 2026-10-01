@@ -44,8 +44,8 @@ Guía rápida para editar contenido y preparar nuevas versiones del sitio. El pr
 ## SEO y dominio
 
 - Título, descripciones y Open Graph traducidos están en `src/i18n/content.ts`; etiquetas y enlaces alternos están en el `<head>` de `src/components/Homepage.astro`.
-- Las rutas `/` y `/en/` tienen contenido renderizado por idioma y sus etiquetas `hreflang` apuntan a rutas distintas.
-- La URL canónica usa la ruta actual (`/` o `/en/`) para no inventar el dominio. Cuando se publique, configura `site` en `astro.config.mjs` y cambia las canónicas a URLs absolutas por idioma; añade también `og:url`.
+- Las rutas `/` y `/en/` tienen contenido renderizado por idioma y sus etiquetas `hreflang` apuntan a rutas distintas. Para GitHub Pages se publican debajo de `/kaizen-labs/`.
+- `site`, las canónicas absolutas, Open Graph y enlaces `hreflang` se configuran para `https://jorgecaiza.github.io`; revisa estas URL si cambia el dominio o el nombre del repositorio.
 - El favicon actualmente reutiliza el PNG del símbolo oficial.
 
 ## Diseño y comportamiento

@@ -5,7 +5,14 @@ import { projects } from "../data/projects";
 const language: Language = Astro.props.language as Language;
 const copy = content[language];
 const linkedin = "https://www.linkedin.com/in/jorge-caiza-balseca-26aa6227a/";
-const imageRoot = "/images";
+const configuredBase = import.meta.env.BASE_URL;
+const basePath = configuredBase.endsWith("/") ? configuredBase : `${configuredBase}/`;
+const imageRoot = `${basePath}images`;
+const siteUrl = Astro.site;
+const spanishUrl = new URL(basePath, siteUrl).href;
+const englishUrl = new URL(`${basePath}en/`, siteUrl).href;
+const canonicalUrl = language === "en" ? englishUrl : spanishUrl;
+const socialImageUrl = new URL(`${imageRoot.slice(1)}/logo.png`, siteUrl).href;
 const hrefFor = (key: string) => `#${key}`;
 ---
 
@@ -21,15 +28,15 @@ const hrefFor = (key: string) => `#${key}`;
 		<meta property="og:site_name" content="Kaizen Labs" />
 		<meta property="og:title" content={copy.meta.ogTitle} data-i18n="meta.ogTitle" />
 		<meta property="og:description" content={copy.meta.ogDescription} data-i18n="meta.ogDescription" />
-		<meta property="og:image" content={`${imageRoot}/logo.png`} />
+		<meta property="og:image" content={socialImageUrl} />
 		<meta name="twitter:card" content="summary" />
 		<meta name="twitter:title" content={copy.meta.ogTitle} data-i18n="meta.ogTitle" />
 		<meta name="twitter:description" content={copy.meta.ogDescription} data-i18n="meta.ogDescription" />
-		<link rel="canonical" href={Astro.url.pathname} />
+		<link rel="canonical" href={canonicalUrl} />
 		<link rel="icon" type="image/png" href={`${imageRoot}/logo.png`} />
-		<link rel="alternate" hreflang="es" href="/" />
-		<link rel="alternate" hreflang="en" href="/en/" />
-		<link rel="alternate" hreflang="x-default" href="/" />
+		<link rel="alternate" hreflang="es" href={spanishUrl} />
+		<link rel="alternate" hreflang="en" href={englishUrl} />
+		<link rel="alternate" hreflang="x-default" href={spanishUrl} />
 		<title data-i18n="meta.title">{copy.meta.title}</title>
 	</head>
 	<body>
@@ -128,13 +135,13 @@ const hrefFor = (key: string) => `#${key}`;
 			<div class="footer-bottom wrap"><span>© {new Date().getFullYear()} Kaizen Labs. <span data-i18n="footer.copyright">{copy.footer.copyright}</span></span><div class="footer-links"><span class="footer-heading" data-i18n="footer.links">{copy.footer.links}</span><a href="#capacidades" data-i18n="nav.work">{copy.nav.work}</a><a href="#trayectoria" data-i18n="nav.journey">{copy.nav.journey}</a><a href="#fundador" data-i18n="nav.founder">{copy.nav.founder}</a></div><div class="footer-links footer-social"><span class="footer-heading" data-i18n="footer.socials">{copy.footer.socials}</span><a href={linkedin} target="_blank" rel="noreferrer">LinkedIn ↗</a><span class="social-pending">Instagram <small data-i18n="footer.soon">{copy.footer.soon}</small></span><span class="social-pending">Facebook <small data-i18n="footer.soon">{copy.footer.soon}</small></span></div></div>
 		</footer>
 
-		<script define:vars={{ content }}>
+		<script define:vars={{ content, basePath }}>
 			const supported = ["es", "en"];
 			const storedLanguage = localStorage.getItem("kaizen-language");
 			const browserLanguage = (navigator.languages?.[0] || navigator.language || "").toLowerCase().split("-")[0];
-			const routeLanguage = location.pathname.startsWith("/en/") ? "en" : "es";
+			const routeLanguage = location.pathname.startsWith(`${basePath}en/`) ? "en" : "es";
 			let currentLanguage = supported.includes(storedLanguage) ? storedLanguage : supported.includes(browserLanguage) ? browserLanguage : routeLanguage;
-			if (currentLanguage !== routeLanguage) location.replace(`${currentLanguage === "en" ? "/en/" : "/"}${location.hash}`);
+			if (currentLanguage !== routeLanguage) location.replace(`${basePath}${currentLanguage === "en" ? "en/" : ""}${location.hash}`);
 			const readPath = (object, path) => path.split(".").reduce((value, part) => value?.[part], object);
 			const translate = () => {
 				const dictionary = content[currentLanguage];
@@ -151,15 +158,15 @@ const hrefFor = (key: string) => `#${key}`;
 				document.querySelector('meta[property="og:description"]').content = dictionary.meta.ogDescription;
 				document.querySelector('meta[name="twitter:title"]').content = dictionary.meta.ogTitle;
 				document.querySelector('meta[name="twitter:description"]').content = dictionary.meta.ogDescription;
-				document.querySelector('link[hreflang="es"]').href = `${location.origin}/`;
-				document.querySelector('link[hreflang="en"]').href = `${location.origin}/en/`;
+				document.querySelector('link[hreflang="es"]').href = `${location.origin}${basePath}`;
+				document.querySelector('link[hreflang="en"]').href = `${location.origin}${basePath}en/`;
 				document.querySelector(".language-current").textContent = currentLanguage.toUpperCase();
 			};
 			translate();
 			document.querySelector(".language-toggle").addEventListener("click", () => {
 				currentLanguage = currentLanguage === "es" ? "en" : "es";
 				localStorage.setItem("kaizen-language", currentLanguage);
-				location.assign(`${currentLanguage === "en" ? "/en/" : "/"}${location.hash}`);
+				location.assign(`${basePath}${currentLanguage === "en" ? "en/" : ""}${location.hash}`);
 			});
 			const menuButton = document.querySelector(".menu-toggle");
 			menuButton.addEventListener("click", () => {
